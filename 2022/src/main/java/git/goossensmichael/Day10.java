@@ -63,9 +63,9 @@ public class Day10 {
         final int j = (cycle - 1) % 40;
 
         if (j == x - 1 ||  j == x + 1 || j == x) {
-            screen[i][j] = '#';
+            screen[i][j] = '█';
         } else {
-            screen[i][j] = '.';
+            screen[i][j] = ' ';
         }
     }
 
