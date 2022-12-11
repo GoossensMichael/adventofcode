@@ -12,7 +12,7 @@ public class Day11 {
 
     public static void main(final String[] args) {
         // Parsing input
-        final String[] input = TST_INPUT.split("\n\n");
+        final String[] input = INPUT.split("\n\n");
 
         {
             final long monkeyBusiness = calculateMonkeyBusiness(input, 3L, 20);
@@ -20,8 +20,8 @@ public class Day11 {
         }
 
         {
-            //final long monkeyBusiness = calculateMonkeyBusiness(input, 1L, 10_000);
-            //System.out.println("Part 2:" + monkeyBusiness);
+            final long monkeyBusiness = calculateMonkeyBusiness(input, 1L, 10_000);
+            System.out.println("Part 2:" + monkeyBusiness);
         }
     }
 
@@ -30,10 +30,17 @@ public class Day11 {
                 .map(Day11::mapToMonkey)
                 .collect(Collectors.toMap(Monkey::id, m -> m));
 
+        final long superModulo = monkeys.values().stream().mapToLong(Monkey::divider).reduce(1, (a, c) -> a * c);
+
         for (int round = 0; round < roundsToPlay; round++) {
             for (final Monkey monkey : monkeys.values()) {
                 for (Long item : monkey.items) {
-                    final Long newValue = (long) Math.floor(monkey.worryFunction().apply(item) / worryLevelDivisor);
+                    final Long newValue;
+                    if (worryLevelDivisor > 1) {
+                        newValue = (long) Math.floor(monkey.worryFunction().apply(item) / worryLevelDivisor);
+                    } else {
+                        newValue = monkey.worryFunction().apply(item) % superModulo;
+                    }
                     final int newMonkey = monkey.decider().apply(newValue);
                     //System.out.println("Monkey " + monkey.id() + " moves " + item + " to " + newMonkey + " with value " + newValue);
                     monkeys.get(newMonkey).items().add(newValue);
@@ -57,10 +64,11 @@ public class Day11 {
 
         final int id = Integer.parseInt(definition[0].substring(7, 8));
         final List<Long> items = mapItems(definition[1]);
+        final long divider = Long.parseLong(definition[3].substring(21));
         final Function<Long, Long> worryFunction = mapOperation(definition[2]);
         final Function<Long, Integer> decider = mapDecider(Arrays.copyOfRange(definition, 3, 6));
 
-        return new Monkey(id, new AtomicLong(0L), items, worryFunction, decider);
+        return new Monkey(id, divider, new AtomicLong(0L), items, worryFunction, decider);
     }
 
     private static List<Long> mapItems(final String itemDefinition) {
@@ -89,7 +97,7 @@ public class Day11 {
         };
     }
 
-    private record Monkey(int id, AtomicLong inspections, List<Long> items, Function<Long, Long> worryFunction, Function<Long, Integer> decider) {}
+    private record Monkey(int id, long divider, AtomicLong inspections, List<Long> items, Function<Long, Long> worryFunction, Function<Long, Integer> decider) {}
 
     private static final String TST_INPUT = """
             Monkey 0:
