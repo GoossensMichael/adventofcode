@@ -42,7 +42,6 @@ public class Day11 {
                         newValue = monkey.worryFunction().apply(item) % superModulo;
                     }
                     final int newMonkey = monkey.decider().apply(newValue);
-                    //System.out.println("Monkey " + monkey.id() + " moves " + item + " to " + newMonkey + " with value " + newValue);
                     monkeys.get(newMonkey).items().add(newValue);
                     monkey.inspections().incrementAndGet();
                 }
@@ -50,13 +49,12 @@ public class Day11 {
             }
         }
 
-        final long monkeyBusiness = monkeys.values().stream()
+        return monkeys.values().stream()
                 .map(m -> m.inspections().get())
                 .sorted(Comparator.reverseOrder())
                 .limit(2)
                 .mapToLong(inspections -> inspections)
                 .reduce(1L, (acc, cur) -> acc * cur);
-        return monkeyBusiness;
     }
 
     private static Monkey mapToMonkey(final String s) {
@@ -127,9 +125,6 @@ public class Day11 {
               Test: divisible by 17
                 If true: throw to monkey 0
                 If false: throw to monkey 1
-            """;
-
-    private static final String TST2_INPUT = """
             """;
 
     private static final String INPUT = """
