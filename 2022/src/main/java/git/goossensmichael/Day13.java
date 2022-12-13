@@ -14,43 +14,6 @@ public class Day13 {
 
     private static final Logger LOGGER = Logger.getLogger(Day13.class.getName());
 
-    private static GroupItem parse(final String part) {
-        final Group root = new Group();
-
-        final Stack<Group> stack =  new Stack<>();
-        stack.push(root);
-        char c;
-        int i = 1;
-        while (i < part.length() - 1) {
-            c = part.charAt(i);
-            if (c == '[') {
-                final Group newGroup = new Group();
-                stack.peek().getItems().add(newGroup);
-                stack.push(newGroup);
-            } else if (c == ']') {
-                stack.pop();
-            } else if (Character.isDigit(c)) {
-                final StringBuffer sb = new StringBuffer();
-                sb.append(c);
-                while (Character.isDigit(part.charAt(i + 1))) {
-                    c = part.charAt(++i);
-                    sb.append(c);
-                }
-                final Item item = new Item(Integer.parseInt(sb.toString()));
-                stack.peek().getItems().add(item);
-            }
-            i++;
-        }
-
-        return stack.pop();
-    }
-
-    private static Pair<GroupItem, GroupItem> toPair(final String pair) {
-        final String[] parts = pair.split("\n");
-
-        return new Pair(parse(parts[0]), parse(parts[1]));
-    }
-
     private static long part1(final String[] pairs) {
         int sumOfCorrectIndices = 0;
         for (int i = 0; i < pairs.length; i++) {
@@ -82,19 +45,33 @@ public class Day13 {
         return dividerPacket1Index * dividerPacket2Index;
     }
 
-    private static int findIndex(final List<GroupItem> groupItems, final String dividerPacket1) {
-        int i = 0;
-        boolean notFound = true;
+    public static void main(final String[] args) {
 
-        while (notFound && i < groupItems.size()) {
-            if (dividerPacket1.equals(groupItems.get(i).toString())) {
-                notFound = false;
-            } else {
-                i++;
+        // Parsing input
+        final var testInput = TST_INPUT.split("\n\n");
+        final var input = INPUT.split("\n\n");
+
+        {
+            final var expectedResult = 13;
+            final var part1 = part1(testInput);
+            LOGGER.log(Level.INFO, () -> String.format("Test part 1: %d", part1));
+
+            if (expectedResult == part1) {
+                final var result = part1(input);
+                LOGGER.log(Level.INFO, () -> String.format("Part 1: %d", result));
             }
         }
 
-        return i + 1;
+        {
+            final var expectedResult = 140;
+            final var testResult = part2(testInput);
+            LOGGER.log(Level.INFO, () -> String.format("Test part 2: %d", testResult));
+
+            if (expectedResult == testResult) {
+                final var result = part2(input);
+                LOGGER.log(Level.INFO, () -> String.format("Part 2: %d", result));
+            }
+        }
     }
 
     private static sealed abstract class GroupItem implements Comparable<GroupItem> permits Item, Group {
@@ -114,11 +91,9 @@ public class Day13 {
 
         @Override
         public int compareTo(final GroupItem other) {
-            System.out.println(String.format("Compare %s vs %s", this, other));
             if (other instanceof Item otherItem) {
                 return Integer.compare(number, otherItem.number);
             } else if (other instanceof Group) {
-                System.out.println(String.format("Mixed types; convert left to [%s] and retry comparison", number));
                 final Group group = new Group();
                 group.getItems().add(this);
                 return group.compareTo(other);
@@ -141,9 +116,7 @@ public class Day13 {
 
         @Override
         public int compareTo(final GroupItem other) {
-            System.out.println(String.format("Compare %s vs %s", this, other));
-            if (other instanceof Item otherItem) {
-                System.out.println(String.format("Mixed types; convert right to [%s] and retry comparison", otherItem.getNumber()));
+            if (other instanceof Item) {
                 final Group group = new Group();
                 group.getItems().add(other);
                 return this.compareTo(group);
@@ -183,33 +156,56 @@ public class Day13 {
         }
     }
 
-    public static void main(final String[] args) {
+    private static int findIndex(final List<GroupItem> groupItems, final String dividerPacket1) {
+        int i = 0;
+        boolean notFound = true;
 
-        // Parsing input
-        final var testInput = TST_INPUT.split("\n\n");
-        final var input = INPUT.split("\n\n");
-
-        {
-            final var expectedResult = 13;
-            final var part1 = part1(testInput);
-            LOGGER.log(Level.INFO, () -> String.format("Test part 1: %d", part1));
-
-            if (expectedResult == part1) {
-                final var result = part1(input);
-                LOGGER.log(Level.INFO, () -> String.format("Part 1: %d", result));
+        while (notFound && i < groupItems.size()) {
+            if (dividerPacket1.equals(groupItems.get(i).toString())) {
+                notFound = false;
+            } else {
+                i++;
             }
         }
 
-        {
-            final var expectedResult = 140;
-            final var testResult = part2(testInput);
-            LOGGER.log(Level.INFO, () -> String.format("Test part 2: %d", testResult));
+        return i + 1;
+    }
 
-            if (expectedResult == testResult) {
-                final var result = part2(input);
-                LOGGER.log(Level.INFO, () -> String.format("Part 2: %d", result));
+    private static GroupItem parse(final String part) {
+        final Group root = new Group();
+
+        final Stack<Group> stack =  new Stack<>();
+        stack.push(root);
+        char c;
+        int i = 1;
+        while (i < part.length() - 1) {
+            c = part.charAt(i);
+            if (c == '[') {
+                final Group newGroup = new Group();
+                stack.peek().getItems().add(newGroup);
+                stack.push(newGroup);
+            } else if (c == ']') {
+                stack.pop();
+            } else if (Character.isDigit(c)) {
+                final StringBuffer sb = new StringBuffer();
+                sb.append(c);
+                while (Character.isDigit(part.charAt(i + 1))) {
+                    c = part.charAt(++i);
+                    sb.append(c);
+                }
+                final Item item = new Item(Integer.parseInt(sb.toString()));
+                stack.peek().getItems().add(item);
             }
+            i++;
         }
+
+        return stack.pop();
+    }
+
+    private static Pair<GroupItem, GroupItem> toPair(final String pair) {
+        final String[] parts = pair.split("\n");
+
+        return new Pair(parse(parts[0]), parse(parts[1]));
     }
 
     private static final String MINI_INPUT = """
