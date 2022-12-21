@@ -25,12 +25,12 @@ public class Day19 {
     }
 
     private static long solve(final Map<RobotType, RobotBlueprint> factoryBlueprint, final int minutes) {
-        final Map<RobotType, Integer> maxAmountOfRobotsNeeded = getMaxAmountOfRobotsNeeded(factoryBlueprint);
-
-        final Set<FactoryState> memo = new HashSet<>();
+        final long begin = System.currentTimeMillis();
 
         final Set<Integer> solution = new HashSet<>();
 
+        final Map<RobotType, Integer> maxAmountOfRobotsNeeded = getMaxAmountOfRobotsNeeded(factoryBlueprint);
+        final Set<FactoryState> memo = new HashSet<>();
         final Set<FactoryState> states = new HashSet<>();
         // Initial state
         states.add(new FactoryState(1, 0, 0, 0 , 0, 0, 0, 0));
@@ -65,11 +65,20 @@ public class Day19 {
             // Prepare states for next round.
             states.clear();
             final int maxGeodes = newStates.stream().mapToInt(FactoryState::geodes).max().orElse(0);
-            states.addAll(newStates.stream().filter(newState -> newState.geodes() >= maxGeodes - 2).toList());
+            final int maxGeodesToFarm = minutes - i;
+            states.addAll(newStates.stream()
+                    .filter(newState -> isStillInTheRunning(maxGeodes, maxGeodesToFarm, newState))
+                    // This is of course faster. But I don't know why the value - 2 is needed. Probably depends on the input.
+                    //.filter(newState -> newState.geodes() >= maxGeodes - 2)
+                    .toList());
             i++;
         }
 
         return solution.stream().mapToInt(n -> n).max().orElseThrow();
+    }
+
+    private static boolean isStillInTheRunning(final int maxGeodes, final int maxGeodesToFarm, final FactoryState newState) {
+        return newState.geodes() >= maxGeodes - maxGeodesToFarm;
     }
 
     private static Map<RobotType, Integer> getMaxAmountOfRobotsNeeded(final Map<RobotType, RobotBlueprint> factoryBlueprint) {
