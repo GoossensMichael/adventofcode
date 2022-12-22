@@ -231,6 +231,15 @@ public class Day21 {
         return calculateReverse(base, value, op, false);
     }
 
+    /*
+     * The leftComplete is needed as for - and / the base and value need to flip places.
+     * e.g.:
+     * 1. 20 / x = 10 -> x = 20 / 10
+     * 2. 10 - x = 5  -> x = 10 - 5
+     *
+     * For all other cases where x (the "unknown" or "incomplete" side) is on the left side or the operation is an
+     * addition or multiplication the calculation order remains the same: x = base (op) value.
+     */
     private static long calculateReverse(final long base, final long value, final char op, final boolean leftComplete) {
         final long newBase;
         if (leftComplete && (op == '-' || op == '/')) {
