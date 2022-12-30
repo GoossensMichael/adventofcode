@@ -14,8 +14,142 @@ public class Day22 {
     private static final Logger LOGGER = Logger.getLogger(Day22.class.getName());
     public static final int[] X_Y_NORMAL = {0, 0, 1, 1};
 
-    private static long part1(final String[] input) {
-        return 0;
+    private static int part1(final String[] input) {
+        input[1] = input[1].replace("\n", "");
+        final char[][] map = parseMap(input[0].split("\n"));
+
+        Position current = findFirstPosition(map);
+        Direction direction = new Direction(0, 1);
+        int i = 0;
+        while (i < input[1].length()) {
+            // Perform the moves first
+            final int endOfNextDigit = endOfNextDigit(i, input[1]);
+            int moves = Integer.parseInt(input[1].substring(i, endOfNextDigit));
+            boolean move = true;
+            for (int m = moves; m > 0 && move; m--) {
+                final Position possibleNextPosition = current.move(direction, map);
+                if (map[possibleNextPosition.row()][possibleNextPosition.col()] == '#') {
+                    move = false;
+                } else {
+                    current = possibleNextPosition;
+                }
+            }
+            i = endOfNextDigit;
+
+            // Now the rotation
+            if (i < input[1].length()) {
+                direction = direction.rotate(input[1].charAt(i++));
+            }
+        }
+
+        return 1000 * (current.row() + 1) + 4 * (current.col() + 1) + direction.value();
+    }
+
+    private static int endOfNextDigit(final int i, final String instructions) {
+        int end = i + 1;
+        while (end < instructions.length() && Character.isDigit(instructions.charAt(end))) {
+            end++;
+        }
+
+        return end;
+    }
+
+    private static Position findFirstPosition(final char[][] map) {
+        for (int row = 0; row < map.length; row++) {
+            for (int col = 0; col < map[0].length; col++) {
+                if (map[row][col] == '.') {
+                    return new Position(row, col);
+                }
+            }
+        }
+
+        throw new IllegalStateException();
+    }
+
+    private static char[][] parseMap(final String[] split) {
+        final int rows = split.length;
+        final int cols = split[0].length();
+
+        final char[][] map = new char[rows][cols];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                if (j < split[i].length()) {
+                    map[i][j] = split[i].charAt(j);
+                } else {
+                    map[i][j] = ' ';
+                }
+            }
+        }
+
+        return map;
+    }
+
+    private record Position(int row, int col) {
+
+        public Position move(final Direction direction, final char[][] map) {
+            boolean move = true;
+            Position p = new Position(row + direction.x(), col + direction.y());
+            while (move) {
+                if (p.row() < 0) {
+                    p = new Position(map.length - 1, p.col);
+                } else if (p.row() >= map.length) {
+                    p = new Position(0, p.col);
+                } else if (p.col() < 0) {
+                    p = new Position(p.row, map[0].length - 1);
+                } else if (p.col() >= map[0].length) {
+                    p = new Position(p.row, 0);
+                } else if (map[p.row()][p.col()] == ' ') {
+                    p = new Position(p.row + direction.x(), p.col + direction.y());
+                } else {
+                    move = false;
+                }
+            }
+
+            return p;
+        }
+
+    }
+
+    private record Direction(int x, int y) {
+
+        public Direction {
+            if (Math.abs(x) > 1 || Math.abs(y) > 1 || (x != 0 && y != 0)) {
+                throw new IllegalArgumentException();
+            }
+
+        }
+
+        public Direction rotate(final char rotation) {
+            final Direction changedDirection;
+            if (rotation == 'L') {
+                changedDirection = new Direction(-y, x);
+            } else if (rotation == 'R') {
+                changedDirection = new Direction(y, -x);
+            } else {
+                throw new IllegalArgumentException(String.format("Illegal rotation: '%s'", rotation));
+            }
+
+            return changedDirection;
+        }
+
+        public int value() {
+            final int value;
+            if (y == 1) {
+                value = 0;
+            } else if (x == 1) {
+                value = 1;
+            } else if (y == -1) {
+                value = 2;
+            } else if (x == -1){
+                value = 3;
+            } else {
+                throw new IllegalStateException();
+            }
+
+            return value;
+        }
+
     }
 
     private static long part2(final String[] input) {
@@ -337,7 +471,7 @@ public class Day22 {
         final var tinyPart2 = part2(tinyInput2);
 
         {
-            final var expectedResult = 0L;
+            final var expectedResult = 6032L;
             final var part1 = part1(testInput);
             LOGGER.log(Level.INFO, () -> String.format("Test part 1: %d", part1));
 
