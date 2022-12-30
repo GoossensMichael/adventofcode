@@ -48,20 +48,6 @@ public class MathUtils {
             {  0, 0,  0, 1 }
     };
 
-    public static final int[][] ROTATE_Z = new int[][] {
-            { 0, -1, 0, 0 },
-            { 1,  0, 0, 0 },
-            { 0,  0, 1, 0 },
-            { 0,  0, 0, 1 }
-    };
-
-    public static final int[][] ROTATE_Z_INVERSE = new int[][] {
-            {  0,  1, 0, 0 },
-            { -1,  0, 0, 0 },
-            {  0,  0, 1, 0 },
-            {  0,  0, 0, 1 }
-    };
-
     public static int[] add(final int[] position, final int[] direction) {
         return new int[] { position[0] + direction[0], position[1] + direction[1], position[2] + direction[2] };
     }
@@ -69,25 +55,6 @@ public class MathUtils {
     public static int[] cross(final int[] a, final int[] b) {
         return new int[] { a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0] };
     }
-
-
-    // Inverts a rotation matrix
-//    public static int[][] invert(final int[][] m) {
-//        return transpose(m);
-//    }
-//
-//    // Switch rows with columns
-//    public static int[][] transpose(final int[][] m) {
-//        final int[][] t = new int[m[0].length][m.length];
-//
-//        for (int i = 0; i < m.length; i++) {
-//            for (int j = 0; j < m[0].length; j++) {
-//                t[j][i] = m[i][j];
-//            }
-//        }
-//
-//        return t;
-//    }
 
     public enum Rotation {
         X_CLOCKWISE, X_COUNTERCLOCKWISE, Y_CLOCKWISE, Y_COUNTERCLOCKWISE
@@ -116,17 +83,6 @@ public class MathUtils {
         }
 
         return transform(translation, result);
-    }
-
-    private static void applyRepositioning(final char axis, final int distance, final int[][] transformation) {
-        switch (axis) {
-            case 'x':
-                transformation[1][3] = distance;
-                break;
-            case 'y':
-                transformation[2][3] = distance;
-                break;
-        }
     }
 
     // Apply matrix to vector
@@ -168,17 +124,6 @@ public class MathUtils {
         };
     }
 
-
-
-    public static void printMatrix(final int[][] m) {
-        for (int i = 0; i < m.length; i++) {
-            for (int j = 0; j < m[0].length; j++) {
-                System.out.print(m[i][j] + " ");
-            }
-            System.out.println();
-        }
-    }
-
     private static void printVector(final int[] v) {
         System.out.println(Arrays.stream(v)
                 .mapToObj(String::valueOf)
@@ -195,33 +140,6 @@ public class MathUtils {
         }
 
         return copy;
-    }
-
-    public static void main(final String[] args) {
-        final int[] a = new int[] { 0, 0, 1 };
-        {
-            final int[] b = new int[] { 1, 0, 0 };
-            System.out.println("Facing X");
-            printVector(cross(a, b));
-        }
-
-        {
-            final int[] b = new int[] { 0, 1, 0 };
-            System.out.println("Facing Y");
-            printVector(cross(a, b));
-        }
-
-        {
-            final int[] b = new int[] { -1, 0, 0 };
-            System.out.println("Facing -X");
-            printVector(cross(a, b));
-        }
-
-        {
-            final int[] b = new int[] { 0, -1, 0 };
-            System.out.println("Facing -Y");
-            printVector(cross(a, b));
-        }
     }
 
 }

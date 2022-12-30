@@ -200,7 +200,6 @@ public class Day22 {
                     // Add the new mapping on the given face of the cubelet.
                     cube[t[0]][t[1]][t[2]].getFaces()
                             .put(workingFace, new Cubelet.CubeFace(new Coord2D(workingCoord.x + i, workingCoord.y + j),
-//                            .put(workingFace, new Cubelet.CubeFace(new Coord2D(i, j),
                                     MapItem.valueOf(input[workingCoord.x + i].charAt(workingCoord.y + j))));
                 }
             }
@@ -330,10 +329,12 @@ public class Day22 {
 
         // Parsing input
         final var tinyInput = TINY_INPUT.split("\n\n");
+        final var tinyInput2 = TINY_INPUT2.split("\n\n");
         final var testInput = TST_INPUT.split("\n\n");
         final var input = INPUT.split("\n\n");
 
         final var tinyPart = part2(tinyInput);
+        final var tinyPart2 = part2(tinyInput2);
 
         {
             final var expectedResult = 0L;
